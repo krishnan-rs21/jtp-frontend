@@ -47,6 +47,117 @@ button {
   overflow: clip;
 }
 
+.loading-screen {
+  align-items: center;
+  background: var(--paper);
+  color: var(--ink);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  transition: opacity 700ms ease, visibility 700ms ease;
+  visibility: visible;
+  z-index: 100;
+}
+
+.loading-screen.is-exiting {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.loading-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.loading-brand {
+  display: flex;
+  font-size: clamp(24px, 6vw, 42px);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  overflow: hidden;
+}
+
+.loading-brand-character {
+  animation: loading-character-loop 3s infinite;
+  animation-delay: calc(var(--character-index) * 130ms);
+}
+
+.loading-message {
+  color: #777976;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.loading-message::after {
+  animation: loading-ellipsis 1400ms steps(4, end) infinite;
+  content: "...";
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  width: 0;
+}
+
+.loading-progress {
+  background: #deddd8;
+  height: 1px;
+  overflow: hidden;
+  width: 112px;
+}
+
+.loading-progress span {
+  animation: loading-progress 2.2s ease-in-out infinite;
+  background: var(--accent);
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  width: 100%;
+}
+
+@keyframes loading-character-loop {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(110%);
+  }
+
+  24%,
+  76% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  88% {
+    opacity: 0;
+    transform: translateY(-110%);
+  }
+}
+
+@keyframes loading-ellipsis {
+  to {
+    width: 3ch;
+  }
+}
+
+@keyframes loading-progress {
+  0% {
+    transform: scaleX(0);
+  }
+
+  55% {
+    transform: scaleX(1);
+  }
+
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
 .side-rail {
   align-items: center;
   background: var(--paper);
@@ -88,10 +199,9 @@ button {
 .rail-markers {
   align-items: center;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: 12px;
   left: 0;
-  pointer-events: none;
   position: absolute;
   right: 0;
   top: auto;
@@ -100,8 +210,21 @@ button {
 
 .rail-tick {
   background: #aaa9a4;
+  border: 0;
   height: 20px;
+  padding: 0;
+  transition: background-color 180ms ease;
   width: 1px;
+}
+
+.rail-tick:hover,
+.rail-tick:focus-visible {
+  background: var(--accent);
+}
+
+.rail-tick:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .rail-counter {
@@ -414,24 +537,58 @@ button {
 
   .side-rail {
     align-items: center;
-    flex-direction: column;
-    height: 100svh;
+    flex-direction: row;
+    height: 54px;
     justify-content: space-between;
-    padding: 22px 0 18px;
-    width: var(--rail-width);
+    left: 0;
+    padding: 0 16px;
+    right: 0;
+    width: 100%;
   }
 
   .rail-label {
     font-size: 9px;
+    transform: none;
+    writing-mode: horizontal-tb;
+    z-index: 2;
+  }
+
+  .rail-markers {
+    bottom: auto;
+    flex-direction: row;
+    gap: 12px;
+    left: 50%;
+    right: auto;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .rail-tick {
+    height: 1px;
+    width: 20px;
   }
 
   .rail-counter {
-    bottom: 42px;
     font-size: 14px;
+    left: auto;
+    position: relative;
+    bottom: auto;
+    transform: none;
+    z-index: 2;
   }
 
   .rail-progress-marker {
-    height: 20px;
+    height: 1px;
+    left: 0;
+    margin-left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    z-index: 1;
+  }
+
+  .project-list {
+    margin-left: 0;
   }
 
   .project {
@@ -528,6 +685,12 @@ button {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .loading-brand-character,
+  .loading-message::after,
+  .loading-progress span {
+    animation: none;
   }
 }
 
@@ -842,6 +1005,10 @@ button {
   line-height: 1;
 }
 
+.award-pagination-current {
+  font-weight: 500;
+}
+
 .award-pagination-separator {
   color: #888;
   font-size: 24px;
@@ -1007,7 +1174,7 @@ button {
 
 .footer-wordmark {
   color: transparent;
-  font-size: min(19vw, 250px);
+  font-size: min(14vw, 250px);
   font-weight: 300;
   line-height: 0.9;
   margin: 60px 0 22px;
@@ -1041,4 +1208,22 @@ button {
 
 .detail-title {
   font-weight: 300;
+}
+
+@media (max-width: 600px) {
+  .contact-section h2 {
+    font-size: clamp(36px, 10vw, 44px);
+  }
+
+  .contact-topline {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 22px;
+    margin-top: 32px;
+  }
+
+  .social-links {
+    flex-wrap: wrap;
+    padding-bottom: 0;
+  }
 }

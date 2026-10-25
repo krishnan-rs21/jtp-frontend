@@ -1,69 +1,18 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight } from "lucide-react";
+import AwardsSection from "./components/AwardsSection.jsx";
+import ContactSection from "./components/ContactSection.jsx";
+import ExpertiseSection from "./components/ExpertiseSection.jsx";
+import IntroSection from "./components/IntroSection.jsx";
+import LoadingScreen from "./components/LoadingScreen.jsx";
+import ProjectSection from "./components/ProjectSection.jsx";
+import SideRail from "./components/SideRail.jsx";
+import content from "./data/content.json";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const projects = [
-  {
-    number: "01",
-    total: "04",
-    title: "Hilton Marjan Island Beach\nresort & Spa",
-    status: "Completed",
-    client: "MR Properties",
-    type: "5 Star Hilton Hotel & Branded Residences",
-    description:
-      "Perched on the captivating Al Marjan Island, the Hilton 5-star hotel masterfully balances serene beach front luxury with the thrilling allure of a vibrant casino. Nestled beside the existing Hampton by Hilton Al Marjan Island, this architectural marvel offers guests and residents an unparalleled experience that fuses relaxation and entertainment.",
-    image: "/images/hilton-marjan-hero.jpg",
-    alt: "Hilton Marjan Island resort at sunset",
-    color: "warm",
-  },
-];
-
-function Project({ project, index }) {
-  const id = `project-${index + 1}`;
-
-  return (
-    <section
-      className={`project project--${project.color}`}
-      id={id}
-      aria-label={`${project.title.replace("\n", " ")} project`}
-    >
-      <div className="project-stage">
-        <div className="project-image-wrap" aria-hidden="true">
-          <img className="project-image" src={project.image} alt="" />
-        </div>
-        <div className="image-shade" aria-hidden="true" />
-        <div className="project-detail-shade" aria-hidden="true" />
-        <div className="project-copy">
-          <div className="project-intro">
-            <h1 className="project-title">{project.title}</h1>
-            <div className="project-tags">
-              <span>{project.status}</span>
-              <span>{project.client}</span>
-            </div>
-          </div>
-          <div className="project-detail">
-            <h2 className="detail-title">{project.title}</h2>
-            <div className="project-facts">
-              <p>
-                <span>Client</span>
-                {project.client}
-              </p>
-              <p>
-                <span>Type</span>
-                {project.type}
-              </p>
-            </div>
-            <p className="detail-description">{project.description}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
+const projects = content.projects;
 export default function App() {
   const appRef = useRef(null);
   const projectRefs = useRef([]);
@@ -74,23 +23,66 @@ export default function App() {
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
   const [activeAward, setActiveAward] = useState(0);
+  const [loaderPhase, setLoaderPhase] = useState("loading");
 
-  const expertise = {
-    number: "02",
-    title: "Architecture",
-    description:
-      "JT Partners is an international multidisciplinary consultancy with a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
-    image: "/images/hilton-marjan-architecture.webp",
-  };
+  useEffect(() => {
+    let cancelled = false;
+    let exitTimer;
+    const images = [...appRef.current.querySelectorAll("img")];
+    const imageLoads = images.map(
+      (image) =>
+        new Promise((resolve) => {
+          const finish = (failed) => {
+            image.removeEventListener("load", onLoad);
+            image.removeEventListener("error", onError);
+            if (failed) {
+              console.error("Failed to load page image:", image.currentSrc || image.src);
+            }
+            resolve();
+          };
+          const onLoad = () => finish(false);
+          const onError = () => finish(true);
 
-  const awards = [
-    "DoubleTree by Hilton - Jeddah recognised in International Award",
-    "International recognition for hospitality design",
-    "Award-winning places with lasting impact",
-  ];
+          if (image.complete) {
+            finish(image.naturalWidth === 0);
+            return;
+          }
+
+          image.addEventListener("load", onLoad, { once: true });
+          image.addEventListener("error", onError, { once: true });
+        }),
+    );
+    const minimumDuration = new Promise((resolve) => {
+      window.setTimeout(resolve, 5000);
+    });
+
+    Promise.all([Promise.all(imageLoads), document.fonts.ready, minimumDuration])
+      .then(() => {
+        if (cancelled) return;
+        setLoaderPhase("exiting");
+        exitTimer = window.setTimeout(() => {
+          if (!cancelled) setLoaderPhase("hidden");
+        }, 700);
+      })
+      .catch((error) => {
+        console.error("Failed while preparing the initial loading screen:", error);
+      });
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(exitTimer);
+    };
+  }, []);
 
   const navigateTo = (index) => {
     projectRefs.current[index]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  const navigateToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
@@ -100,6 +92,7 @@ export default function App() {
     let updateRailMarker = () => {};
     let revealSections = () => {};
     let railResizeObserver;
+    const mobileBreakpoint = window.matchMedia("(max-width: 600px)");
     const sectionRevealTimelines = [];
     const context = gsap.context(() => {
       gsap.from(".side-rail", {
@@ -109,9 +102,7 @@ export default function App() {
         ease: "power2.out",
       });
 
-      const firstProjectImage = appRef.current.querySelector(
-        ".project-image",
-      );
+      const firstProjectImage = appRef.current.querySelector(".project-image");
       const firstProjectTitle = appRef.current.querySelector(".project-title");
       const firstProjectTags = appRef.current.querySelectorAll(
         ".project-tags span",
@@ -148,38 +139,54 @@ export default function App() {
         const ticks = markers?.querySelectorAll(".rail-tick");
         if (!marker || !rail || !markers || !ticks?.length) return;
 
-        const maxScroll =
-          document.documentElement.scrollHeight - window.innerHeight;
-        const progress =
-          maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
-        const currentIndex = Math.min(
-          ticks.length - 1,
-          Math.floor(progress * ticks.length),
-        );
+        const destinations = content.projectNavigation.destinations;
+        const currentIndex = destinations.reduce((activeIndex, destination, index) => {
+          const section = document.getElementById(destination.target);
+          if (
+            section &&
+            section.getBoundingClientRect().top <= window.innerHeight * 0.25
+          ) {
+            return index;
+          }
+          return activeIndex;
+        }, 0);
         if (currentIndex !== activeProjectRef.current) {
           activeProjectRef.current = currentIndex;
           setActiveProject(currentIndex);
         }
 
         const railRect = rail.getBoundingClientRect();
-        const activeTickIndex = ticks.length - 1 - currentIndex;
+        const isMobile = window.matchMedia("(max-width: 600px)").matches;
+        const activeTickIndex = currentIndex;
         const activeTickRect = ticks[activeTickIndex].getBoundingClientRect();
-        const position =
-          activeTickRect.top +
-          activeTickRect.height / 2 -
-          railRect.top -
-          marker.offsetHeight / 2;
-
-        gsap.set(marker, { y: position });
+        if (isMobile) {
+          marker.style.top = "";
+          marker.style.left = `${
+            activeTickRect.left +
+            activeTickRect.width / 2 -
+            railRect.left -
+            marker.offsetWidth / 2
+          }px`;
+        } else {
+          marker.style.left = "";
+          marker.style.top = `${
+            activeTickRect.top +
+            activeTickRect.height / 2 -
+            railRect.top -
+            marker.offsetHeight / 2
+          }px`;
+        }
         revealSections();
       };
 
       window.addEventListener("scroll", updateRailMarker, { passive: true });
       window.addEventListener("resize", updateRailMarker);
+      mobileBreakpoint.addEventListener("change", updateRailMarker);
       ScrollTrigger.addEventListener("update", updateRailMarker);
       ScrollTrigger.addEventListener("refresh", updateRailMarker);
       railResizeObserver = new ResizeObserver(updateRailMarker);
       railResizeObserver.observe(railMarkersRef.current);
+      railResizeObserver.observe(railMarkersRef.current.parentElement);
       updateRailMarker();
 
       gsap.utils.toArray(".project").forEach((section) => {
@@ -351,6 +358,7 @@ export default function App() {
     return () => {
       window.removeEventListener("scroll", updateRailMarker);
       window.removeEventListener("resize", updateRailMarker);
+      mobileBreakpoint.removeEventListener("change", updateRailMarker);
       window.removeEventListener("scroll", revealSections);
       window.removeEventListener("resize", revealSections);
       ScrollTrigger.removeEventListener("update", updateRailMarker);
@@ -362,205 +370,55 @@ export default function App() {
   }, []);
 
   return (
-    <main className="portfolio" ref={appRef}>
-      <aside className="side-rail" aria-label="Featured project navigation">
-        <a
-          className="rail-label"
-          ref={railLabelRef}
-          href="#project-1"
-          onClick={(event) => {
-            event.preventDefault();
-            navigateTo(0);
-          }}
-        >
-          Featured projects
-        </a>
-        <span
-          className="rail-progress-marker"
-          ref={railProgressRef}
-          aria-hidden="true"
+    <>
+      {loaderPhase !== "hidden" && (
+        <LoadingScreen
+          brand={content.loader.brand}
+          message={content.loader.message}
+          phase={loaderPhase}
         />
-        <div className="rail-markers" ref={railMarkersRef} aria-hidden="true">
-          {Array.from({ length: Number(projects[0].total) }, (_, index) => (
-            <span className="rail-tick" key={index} />
-          ))}
-        </div>
-        <output
-          className="rail-counter"
-          ref={railCounterRef}
-          aria-label={`Project ${String(activeProject + 1).padStart(2, "0")} of ${projects[0].total}`}
-        >
-          <span className="rail-counter-current">
-            {String(activeProject + 1).padStart(2, "0")}
-          </span>
-          <span className="rail-counter-divider">-</span>
-          <span>{projects[0].total}</span>
-        </output>
-      </aside>
+      )}
+      <main className="portfolio" ref={appRef}>
+        <SideRail
+        activeProject={activeProject}
+        ariaLabel={content.projectNavigation.ariaLabel}
+        counterRef={railCounterRef}
+        label={content.projectNavigation.label}
+        labelRef={railLabelRef}
+        markersRef={railMarkersRef}
+        navigateToSection={navigateToSection}
+        progressRef={railProgressRef}
+        destinations={content.projectNavigation.destinations}
+        destinationLabel={content.projectNavigation.destinationLabel}
+        counterLabel={content.projectNavigation.counterLabel}
+        />
 
-      <div className="project-list">
-        {projects.map((project, index) => (
-          <div
-            ref={(element) => {
-              projectRefs.current[index] = element;
-            }}
-            key={project.number}
-          >
-            <Project project={project} index={index} />
-          </div>
-        ))}
-      </div>
-
-      <section className="intro-section" aria-labelledby="intro-title">
-        <div className="intro-heading">
-          <p className="section-index">JT+Partners</p>
-          <h2 id="intro-title">
-            Design the future
-            <br />
-            Now
-          </h2>
-        </div>
-        <div className="intro-copy">
-          <p>
-            JT Partners JT P is an international multidisciplinary consultant
-            which offers a unique portfolio of architecture, planning,
-            engineering, project management, infrastructure and cost consultancy
-            services.
-          </p>
-          <a className="plus-link" href="#expertise">
-            <span aria-hidden="true">+</span>Know More Us
-          </a>
-        </div>
-      </section>
-
-      <section
-        className="expertise-section"
-        id="expertise"
-        aria-labelledby="expertise-title"
-      >
-        <h2 id="expertise-title">Our Expertise</h2>
-        <div className="expertise-content">
-          <div className="expertise-category" aria-label="Expertise category">
-            <span>01</span>
-            <span>Engineering</span>
-          </div>
-          <div
-            className="expertise-panel"
-            id="expertise-panel"
-            aria-labelledby="expertise-title"
-          >
-            <div className="expertise-copy">
-              <p className="expertise-number">{expertise.number}</p>
-              <h3>{expertise.title}</h3>
-              <span className="expertise-accent" aria-hidden="true" />
-              <p>{expertise.description}</p>
-            </div>
-            <div className="expertise-image-wrap">
-              <img
-                src={expertise.image}
-                alt={`${expertise.title} project`}
+        <div className="project-list">
+          {projects.map((project, index) => (
+            <div
+              ref={(element) => {
+                projectRefs.current[index] = element;
+              }}
+              key={project.number}
+            >
+              <ProjectSection
+                project={project}
+                index={index}
+                labels={content.labels}
               />
             </div>
-            <span className="expertise-cross" aria-hidden="true">
-              +
-            </span>
-          </div>
+          ))}
         </div>
-      </section>
 
-      <section className="awards-section" aria-labelledby="awards-title">
-        <div className="awards-heading">
-          <h2 id="awards-title">
-            Architectural
-            <br />
-            Excellence
-          </h2>
-          <p>
-            Awards &amp;
-            <br />
-            Achievements
-          </p>
-        </div>
-        <div className="awards-content">
-          <div
-            className="award-pagination"
-            aria-label={`Award ${String(activeAward + 1).padStart(2, "0")} of ${String(awards.length).padStart(2, "0")}`}
-          >
-            <span className="award-pagination-current">
-              {String(activeAward + 1).padStart(2, "0")}
-            </span>
-            <span className="award-pagination-separator" aria-hidden="true">
-              -
-            </span>
-            <span className="award-pagination-total">
-              {String(awards.length).padStart(2, "0")}
-            </span>
-            <div className="award-pagination-track">
-              {awards.map((award, index) => (
-                <button
-                  key={award}
-                  type="button"
-                  aria-label={`Show award ${String(index + 1).padStart(2, "0")}: ${award}`}
-                  aria-pressed={activeAward === index}
-                  className={activeAward === index ? "is-active" : ""}
-                  onClick={() => setActiveAward(index)}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="award-visual">
-            <img
-              src="/images/doubletree-award.jpg"
-              alt="DoubleTree by Hilton Jeddah awardee, Rethinking the Future Awards 2021"
-            />
-          </div>
-          <div className="award-story">
-            <h3>{awards[activeAward]}</h3>
-            <a className="plus-link" href="https://jtpartners.com/news-awards/">
-              <span aria-hidden="true">+</span>Read More
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <footer className="contact-section" aria-labelledby="contact-title">
-        <h2 id="contact-title">Let’s collaborate!</h2>
-        <div className="contact-topline">
-          <div className="contact-details">
-            <a href="tel:+97144521135">+971 4 452 1135</a>
-            <a href="mailto:clients@jtpartners.com">
-              clients<span>@</span>jtpartners.com
-            </a>
-          </div>
-          <div className="social-links">
-            <a href="https://www.instagram.com/jtandpartners/">
-              Instagram <ArrowUpRight size={12} />
-            </a>
-            <a href="https://www.linkedin.com/company/jt-partners/">
-              LinkedIn <ArrowUpRight size={12} />
-            </a>
-            <a href="https://www.facebook.com/jtpartners1">
-              Facebook <ArrowUpRight size={12} />
-            </a>
-          </div>
-        </div>
-        <div className="office-details">
-          <div className="office-tabs" aria-label="Office locations">
-            <span>Abu Dhabi</span>
-            <span className="is-active">Dubai</span>
-            <span>Lebanon</span>
-          </div>
-          <p>Dubai, UAE</p>
-          <span>Business Bay · Bay Square 8 · Office 201-202</span>
-          <span>+971 4 452 1135</span>
-        </div>
-        <div className="footer-wordmark" aria-hidden="true">
-          JT&amp;PARTNERS
-        </div>
-        <div className="copyright">
-          ©2025 JT &amp; Partners. All Rights Reserved
-        </div>
-      </footer>
-    </main>
+        <IntroSection content={content.intro} />
+        <ExpertiseSection content={content.expertise} />
+        <AwardsSection
+          activeAward={activeAward}
+          content={content.awards}
+          onAwardChange={setActiveAward}
+        />
+        <ContactSection content={content.contact} />
+      </main>
+    </>
   );
 }

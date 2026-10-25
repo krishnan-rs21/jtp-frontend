@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "title": "Featured Projects — JTP",
+    "description": "A selection of selected projects by JTP."
+  },
+  "loader": {
+    "brand": "JT&PARTNERS",
+    "message": "Loading"
+  },
+  "projectNavigation": {
+    "label": "Featured projects",
+    "ariaLabel": "Featured project navigation",
+    "counterLabel": "Project {current} of {total}",
+    "destinationLabel": "Go to {label}",
+    "destinations": [
+      {
+        "label": "Featured project",
+        "target": "project-1"
+      },
+      {
+        "label": "Introduction",
+        "target": "intro"
+      },
+      {
+        "label": "Expertise",
+        "target": "expertise"
+      },
+      {
+        "label": "Awards",
+        "target": "awards"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "number": "01",
+      "total": "04",
+      "title": "Hilton Marjan Island Beach\nresort & Spa",
+      "status": "Completed",
+      "client": "MR Properties",
+      "type": "5 Star Hilton Hotel & Branded Residences",
+      "description": "Perched on the captivating Al Marjan Island, the Hilton 5-star hotel masterfully balances serene beach front luxury with the thrilling allure of a vibrant casino. Nestled beside the existing Hampton by Hilton Al Marjan Island, this architectural marvel offers guests and residents an unparalleled experience that fuses relaxation and entertainment.",
+      "image": "/images/hilton-marjan-hero.jpg",
+      "alt": "Hilton Marjan Island resort at sunset",
+      "color": "warm"
+    }
+  ],
+  "intro": {
+    "brand": "JT+Partners",
+    "heading": ["Design the future", "Now"],
+    "description": "JT Partners JT P is an international multidisciplinary consultant which offers a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
+    "link": {
+      "label": "Know More Us",
+      "href": "#expertise"
+    }
+  },
+  "expertise": {
+    "heading": "Our Expertise",
+    "categoryLabel": "Expertise category",
+    "categories": [
+      {
+        "number": "01",
+        "title": "Engineering"
+      }
+    ],
+    "number": "02",
+    "title": "Architecture",
+    "description": "JT Partners is an international multidisciplinary consultancy with a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
+    "image": "/images/hilton-marjan-architecture.webp",
+    "imageAlt": "Architecture project"
+  },
+  "awards": {
+    "heading": ["Architectural", "Excellence"],
+    "subheading": ["Awards &", "Achievements"],
+    "paginationLabel": "Award {current} of {total}",
+    "buttonLabel": "Show award {number}: {title}",
+    "items": [
+      "DoubleTree by Hilton - Jeddah recognised in International Award",
+      "International recognition for hospitality design",
+      "Award-winning places with lasting impact"
+    ],
+    "image": "/images/doubletree-award.jpg",
+    "imageAlt": "DoubleTree by Hilton Jeddah awardee, Rethinking the Future Awards 2021",
+    "linkLabel": "Read More"
+  },
+  "contact": {
+    "heading": "Let’s collaborate!",
+    "phone": {
+      "label": "+971 4 452 1135",
+      "href": "tel:+97144521135"
+    },
+    "email": {
+      "label": "clients@jtpartners.com",
+      "href": "mailto:clients@jtpartners.com"
+    },
+    "socialLinks": [
+      {
+        "label": "Instagram"
+      },
+      {
+        "label": "LinkedIn"
+      },
+      {
+        "label": "Facebook"
+      }
+    ],
+    "officesLabel": "Office locations",
+    "offices": [
+      {
+        "name": "Abu Dhabi",
+        "active": false
+      },
+      {
+        "name": "Dubai",
+        "active": true
+      },
+      {
+        "name": "Lebanon",
+        "active": false
+      }
+    ],
+    "location": "Dubai, UAE",
+    "address": "Business Bay · Bay Square 8 · Office 201-202",
+    "wordmark": "JT&PARTNERS",
+    "copyright": "©2025 JT & Partners. All Rights Reserved"
+  },
+  "labels": {
+    "client": "Client",
+    "type": "Type",
+    "projectSection": "{title} project"
+  }
+}
