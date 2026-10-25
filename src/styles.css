@@ -572,6 +572,7 @@ button {
   justify-self: center;
   max-width: 440px;
   padding-top: 42px;
+  transform: translateY(clamp(28px, 6.7vw, 58px));
 }
 
 .intro-copy > p {
