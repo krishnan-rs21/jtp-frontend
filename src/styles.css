@@ -1326,6 +1326,19 @@ button {
   .awards-heading h2 {
     font-size: 42px;
   }
+
+  .awards-content {
+    column-gap: 0;
+    grid-template-areas:
+      "pagination"
+      "visual"
+      "story";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .award-story h3 {
+    min-height: 5.4em;
+  }
 }
 
 .contact-section {
