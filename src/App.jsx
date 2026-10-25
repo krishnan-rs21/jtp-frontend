@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowDown, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,11 +35,7 @@ function Project({ project, index }) {
           <img className="project-image" src={project.image} alt="" />
         </div>
         <div className="image-shade" aria-hidden="true" />
-        <div className="project-index" aria-hidden="true">
-          <span>{project.number}</span>
-          <span className="index-rule" />
-          <span>{project.total}</span>
-        </div>
+        <div className="project-detail-shade" aria-hidden="true" />
         <div className="project-copy">
           <div className="project-intro">
             <h1 className="project-title">{project.title}</h1>
@@ -63,10 +59,6 @@ function Project({ project, index }) {
             <p className="detail-description">{project.description}</p>
           </div>
         </div>
-        <div className="scroll-prompt" aria-hidden="true">
-          <span>Scroll to explore</span>
-          <ArrowDown size={16} strokeWidth={1.5} />
-        </div>
       </div>
     </section>
   );
@@ -81,29 +73,15 @@ export default function App() {
   const railCounterRef = useRef(null);
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
-  const [activeExpertise, setActiveExpertise] = useState(1);
   const [activeAward, setActiveAward] = useState(0);
 
-  const expertise = [
-    {
-      title: "Engineering",
-      description:
-        "Integrated engineering that brings clarity, performance and long-term value to every project.",
-      image: projects[0].image,
-    },
-    {
-      title: "Architecture",
-      description:
-        "JT Partners is an international multidisciplinary consultancy with a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
-      image: "/images/hilton-marjan-architecture.webp",
-    },
-    {
-      title: "Interior Design",
-      description:
-        "Thoughtful interior environments that connect people to place through material, light and detail.",
-      image: projects[0].image,
-    },
-  ];
+  const expertise = {
+    number: "02",
+    title: "Architecture",
+    description:
+      "JT Partners is an international multidisciplinary consultancy with a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
+    image: "/images/hilton-marjan-architecture.webp",
+  };
 
   const awards = [
     "DoubleTree by Hilton - Jeddah recognised in International Award",
@@ -120,15 +98,48 @@ export default function App() {
 
   useLayoutEffect(() => {
     let updateRailMarker = () => {};
+    let revealSections = () => {};
     let railResizeObserver;
+    const sectionRevealTimelines = [];
     const context = gsap.context(() => {
-      gsap.from(".side-rail, .project-index, .scroll-prompt", {
+      gsap.from(".side-rail", {
         opacity: 0,
         duration: 1,
         delay: 0.2,
-        stagger: 0.12,
         ease: "power2.out",
       });
+
+      const firstProjectImage = appRef.current.querySelector(
+        ".project-image",
+      );
+      const firstProjectTitle = appRef.current.querySelector(".project-title");
+      const firstProjectTags = appRef.current.querySelectorAll(
+        ".project-tags span",
+      );
+      gsap
+        .timeline({ defaults: { ease: "power3.out" } })
+        .fromTo(
+          firstProjectImage,
+          { scale: 1.045 },
+          { scale: 1, duration: 1.5 },
+          0,
+        )
+        .fromTo(
+          firstProjectTitle,
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 1.8 },
+          0.3,
+        )
+        .fromTo(
+          firstProjectTags,
+          { clipPath: "inset(0 100% 0 0)" },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            duration: 0.7,
+            stagger: 0.16,
+          },
+          0.95,
+        );
 
       updateRailMarker = () => {
         const marker = railProgressRef.current;
@@ -160,6 +171,7 @@ export default function App() {
           marker.offsetHeight / 2;
 
         gsap.set(marker, { y: position });
+        revealSections();
       };
 
       window.addEventListener("scroll", updateRailMarker, { passive: true });
@@ -172,48 +184,166 @@ export default function App() {
 
       gsap.utils.toArray(".project").forEach((section) => {
         const title = section.querySelector(".project-title");
-        const intro = section.querySelector(".project-intro");
+        const tags = section.querySelector(".project-tags");
         const detail = section.querySelector(".project-detail");
-        const image = section.querySelector(".project-image");
-        const prompt = section.querySelector(".scroll-prompt");
+        const detailShade = section.querySelector(".project-detail-shade");
+        const detailTitle = detail.querySelector(".detail-title");
+        const projectFacts = detail.querySelector(".project-facts");
+        const factColumns = projectFacts.querySelectorAll("p");
+        const description = detail.querySelector(".detail-description");
 
         const reveal = gsap.timeline({
           scrollTrigger: {
             trigger: section,
             start: "top top",
             end: "bottom bottom",
-            scrub: 0.65,
+            scrub: 1.6,
           },
         });
-
         reveal
-          .to(title, { yPercent: -28, opacity: 0, ease: "none" }, 0.12)
-          .to(intro, { y: -22, opacity: 0, ease: "none" }, 0.12)
+          .fromTo(
+            detailShade,
+            { opacity: 0, immediateRender: false },
+            { opacity: 1, ease: "none" },
+            0.2,
+          )
+          .fromTo(
+            title,
+            { y: 0, opacity: 1, immediateRender: false },
+            { y: -24, opacity: 0, ease: "none" },
+            0.08,
+          )
+          .fromTo(
+            tags,
+            { y: 0, opacity: 1, immediateRender: false },
+            { y: -12, opacity: 0, ease: "none" },
+            0.2,
+          )
           .fromTo(
             detail,
-            { y: 56, opacity: 0 },
+            { y: 44, opacity: 0 },
             { y: 0, opacity: 1, ease: "none" },
-            0.22,
+            0.26,
           )
-          .to(image, { scale: 1.06, ease: "none" }, 0)
-          .to(image, { opacity: 0.58, ease: "none" }, 0.2)
-          .to(prompt, { opacity: 0, ease: "none" }, 0.08);
-
-        gsap.fromTo(
-          image,
-          { scale: 1.08 },
-          {
-            scale: 1,
-            duration: 1.5,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: section,
-              start: "top 85%",
-              once: true,
-            },
-          },
-        );
+          .fromTo(
+            detailTitle,
+            { y: 24, opacity: 0, immediateRender: false },
+            { y: 0, opacity: 1, ease: "none" },
+            0.34,
+          )
+          .fromTo(
+            factColumns,
+            { y: 20, opacity: 0, immediateRender: false },
+            { y: 0, opacity: 1, stagger: 0.08, ease: "none" },
+            0.43,
+          )
+          .fromTo(
+            projectFacts,
+            { clipPath: "inset(0 0 100% 0)", immediateRender: false },
+            { clipPath: "inset(0 0 0% 0)", ease: "none" },
+            0.43,
+          )
+          .fromTo(
+            description,
+            { y: 24, opacity: 0, immediateRender: false },
+            { y: 0, opacity: 1, ease: "none" },
+            0.56,
+          );
       });
+
+      const sectionAnimations = [
+        {
+          section: ".intro-section",
+          elements: [
+            [".section-index", { y: 14, opacity: 0 }],
+            [".intro-heading h2", { y: 36, opacity: 0 }],
+            [".intro-copy > p", { y: 24, opacity: 0 }],
+            [".intro-copy .plus-link", { y: 16, opacity: 0 }],
+          ],
+        },
+        {
+          section: ".expertise-section",
+          elements: [
+            [".expertise-section > h2", { y: 30, opacity: 0 }],
+            [".expertise-category", { y: 12, opacity: 0 }],
+            [".expertise-copy", { x: -24, opacity: 0 }],
+            [".expertise-image-wrap", { clipPath: "inset(0 0 0 100%)" }],
+          ],
+        },
+        {
+          section: ".awards-section",
+          elements: [
+            [".awards-heading > *", { y: 24, opacity: 0, stagger: 0.12 }],
+            [".award-pagination", { y: 18, opacity: 0 }],
+            [".award-visual", { y: 36, opacity: 0 }],
+            [".award-story", { x: 28, opacity: 0 }],
+          ],
+        },
+        {
+          section: ".contact-section",
+          elements: [
+            [".contact-section > h2", { y: 28, opacity: 0 }],
+            [".contact-topline", { y: 24, opacity: 0 }],
+            [".office-details", { y: 18, opacity: 0 }],
+          ],
+        },
+      ];
+
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const sectionElements = new Map();
+        sectionAnimations.forEach(({ section: selector, elements }) => {
+          const section = appRef.current.querySelector(selector);
+          if (!section) return;
+
+          const groups = [];
+          elements.forEach(([elementSelector, from], index) => {
+            const { stagger, ...fromVars } = from;
+            const targets = section.querySelectorAll(elementSelector);
+            if (!targets.length) return;
+
+            gsap.set(targets, fromVars);
+            groups.push({ targets, stagger, position: index * 0.2 });
+          });
+
+          sectionElements.set(section, groups);
+        });
+
+        const revealedSections = new Set();
+        revealSections = () => {
+          sectionElements.forEach((groups, section) => {
+            if (revealedSections.has(section)) return;
+            const bounds = section.getBoundingClientRect();
+            if (
+              bounds.top > window.innerHeight * 0.6 ||
+              bounds.bottom <= 0
+            ) {
+              return;
+            }
+
+            const reveal = gsap.timeline();
+            groups.forEach(({ targets, stagger, position }) => {
+              reveal.to(
+                targets,
+                {
+                  x: 0,
+                  y: 0,
+                  opacity: 1,
+                  clipPath: "inset(0 0 0 0)",
+                  duration: 1.15,
+                  stagger,
+                  ease: "power3.out",
+                },
+                position,
+              );
+            });
+            sectionRevealTimelines.push(reveal);
+            revealedSections.add(section);
+          });
+        };
+        window.addEventListener("scroll", revealSections, { passive: true });
+        window.addEventListener("resize", revealSections);
+        revealSections();
+      }
 
       ScrollTrigger.refresh();
     }, appRef);
@@ -221,9 +351,12 @@ export default function App() {
     return () => {
       window.removeEventListener("scroll", updateRailMarker);
       window.removeEventListener("resize", updateRailMarker);
+      window.removeEventListener("scroll", revealSections);
+      window.removeEventListener("resize", revealSections);
       ScrollTrigger.removeEventListener("update", updateRailMarker);
       ScrollTrigger.removeEventListener("refresh", updateRailMarker);
       railResizeObserver?.disconnect();
+      sectionRevealTimelines.forEach((timeline) => timeline.kill());
       context.revert();
     };
   }, []);
@@ -307,43 +440,25 @@ export default function App() {
       >
         <h2 id="expertise-title">Our Expertise</h2>
         <div className="expertise-content">
-          <div
-            className="expertise-list"
-            role="tablist"
-            aria-label="Areas of expertise"
-          >
-            {expertise.map((item, index) => (
-              <button
-                className={`expertise-tab${activeExpertise === index ? " is-active" : ""}`}
-                id={`expertise-tab-${index}`}
-                key={item.title}
-                type="button"
-                role="tab"
-                aria-selected={activeExpertise === index}
-                aria-controls="expertise-panel"
-                onClick={() => setActiveExpertise(index)}
-              >
-                <span className="expertise-tab-number">0{index + 1}</span>
-                <span>{item.title}</span>
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </button>
-            ))}
+          <div className="expertise-category" aria-label="Expertise category">
+            <span>01</span>
+            <span>Engineering</span>
           </div>
           <div
             className="expertise-panel"
             id="expertise-panel"
-            role="tabpanel"
-            aria-labelledby={`expertise-tab-${activeExpertise}`}
+            aria-labelledby="expertise-title"
           >
             <div className="expertise-copy">
-              <p className="expertise-number">0{activeExpertise + 1}</p>
-              <h3>{expertise[activeExpertise].title}</h3>
-              <p>{expertise[activeExpertise].description}</p>
+              <p className="expertise-number">{expertise.number}</p>
+              <h3>{expertise.title}</h3>
+              <span className="expertise-accent" aria-hidden="true" />
+              <p>{expertise.description}</p>
             </div>
             <div className="expertise-image-wrap">
               <img
-                src={expertise[activeExpertise].image}
-                alt={`${expertise[activeExpertise].title} project`}
+                src={expertise.image}
+                alt={`${expertise.title} project`}
               />
             </div>
             <span className="expertise-cross" aria-hidden="true">
@@ -367,31 +482,39 @@ export default function App() {
           </p>
         </div>
         <div className="awards-content">
-          <div className="award-visual" aria-hidden="true">
-            <span>Rethinking the future awards</span>
-            <strong>AWARDEE</strong>
-            <span>Hospitality concept</span>
-          </div>
-          <div className="award-story">
-            <div
-              className="award-pagination"
-              role="tablist"
-              aria-label="Awards"
-            >
+          <div
+            className="award-pagination"
+            aria-label={`Award ${String(activeAward + 1).padStart(2, "0")} of ${String(awards.length).padStart(2, "0")}`}
+          >
+            <span className="award-pagination-current">
+              {String(activeAward + 1).padStart(2, "0")}
+            </span>
+            <span className="award-pagination-separator" aria-hidden="true">
+              -
+            </span>
+            <span className="award-pagination-total">
+              {String(awards.length).padStart(2, "0")}
+            </span>
+            <div className="award-pagination-track">
               {awards.map((award, index) => (
                 <button
                   key={award}
                   type="button"
-                  role="tab"
-                  aria-label={`Award ${index + 1}`}
-                  aria-selected={activeAward === index}
+                  aria-label={`Show award ${String(index + 1).padStart(2, "0")}: ${award}`}
+                  aria-pressed={activeAward === index}
                   className={activeAward === index ? "is-active" : ""}
                   onClick={() => setActiveAward(index)}
-                >
-                  <span>0{index + 1}</span>
-                </button>
+                />
               ))}
             </div>
+          </div>
+          <div className="award-visual">
+            <img
+              src="/images/doubletree-award.jpg"
+              alt="DoubleTree by Hilton Jeddah awardee, Rethinking the Future Awards 2021"
+            />
+          </div>
+          <div className="award-story">
             <h3>{awards[activeAward]}</h3>
             <a className="plus-link" href="https://jtpartners.com/news-awards/">
               <span aria-hidden="true">+</span>Read More
