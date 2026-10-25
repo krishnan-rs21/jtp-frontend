@@ -1,4 +1,5 @@
 import { formatContent } from "../utils/formatContent.js";
+import { publicAssetUrl } from "../utils/publicAssetUrl.js";
 
 export default function ProjectSection({ project, index, labels }) {
   const id = `project-${index + 1}`;
@@ -13,7 +14,11 @@ export default function ProjectSection({ project, index, labels }) {
     >
       <div className="project-stage">
         <div className="project-image-wrap" aria-hidden="true">
-          <img className="project-image" src={project.image} alt="" />
+          <img
+            className="project-image"
+            src={publicAssetUrl(project.image)}
+            alt=""
+          />
         </div>
         <div className="image-shade" aria-hidden="true" />
         <div className="project-detail-shade" aria-hidden="true" />

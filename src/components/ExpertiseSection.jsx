@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { publicAssetUrl } from "../utils/publicAssetUrl.js";
 
 export default function ExpertiseSection({ content }) {
   return (
@@ -32,7 +33,7 @@ export default function ExpertiseSection({ content }) {
             <p>{content.description}</p>
           </div>
           <div className="expertise-image-wrap">
-            <img src={content.image} alt={content.imageAlt} />
+            <img src={publicAssetUrl(content.image)} alt={content.imageAlt} />
           </div>
           <span className="expertise-cross" aria-hidden="true">
             +

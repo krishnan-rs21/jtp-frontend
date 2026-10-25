@@ -1,4 +1,5 @@
 import { formatContent } from "../utils/formatContent.js";
+import { publicAssetUrl } from "../utils/publicAssetUrl.js";
 import PlusLink from "./PlusLink.jsx";
 
 export default function AwardsSection({ activeAward, content, onAwardChange }) {
@@ -53,7 +54,7 @@ export default function AwardsSection({ activeAward, content, onAwardChange }) {
           </div>
         </div>
         <div className="award-visual">
-          <img src={content.image} alt={content.imageAlt} />
+          <img src={publicAssetUrl(content.image)} alt={content.imageAlt} />
         </div>
         <div className="award-story">
           <h3>{content.items[activeAward]}</h3>
