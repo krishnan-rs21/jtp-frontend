@@ -22,6 +22,10 @@ export default function SideRail({
         className="rail-label"
         ref={labelRef}
         href="#project-1"
+        onClick={(event) => {
+          event.preventDefault();
+          navigateToProject(0);
+        }}
       >
         {label}
       </a>

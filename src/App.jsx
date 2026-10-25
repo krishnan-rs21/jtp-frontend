@@ -77,16 +77,21 @@ export default function App() {
     const showcase = document.getElementById("project-1");
     if (!showcase) return;
     const scrollDistance = showcase.offsetHeight - window.innerHeight;
+    const targetScroll =
+      showcase.getBoundingClientRect().top +
+      window.scrollY +
+      (index === 0
+        ? 0
+        : (scrollDistance * (index + 0.82)) / content.projects.length);
 
     window.scrollTo({
-      top:
-        showcase.getBoundingClientRect().top +
-        window.scrollY +
-        (scrollDistance * (index + 0.82)) / content.projects.length,
+      top: targetScroll,
       behavior: "instant",
     });
     ScrollTrigger.update();
     projectScrollTriggerRef.current?.getTween()?.progress(1);
+    window.scrollTo({ top: targetScroll, behavior: "instant" });
+    ScrollTrigger.update();
   };
 
   useLayoutEffect(() => {
