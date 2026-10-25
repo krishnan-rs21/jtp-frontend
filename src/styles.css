@@ -7,7 +7,7 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --rail-width: clamp(48px, 5.5vw, 80px);
+  --rail-width: clamp(44px, 4.5vw, 68px);
   --paper: #f5f4f0;
   --ink: #161719;
   --accent: #e6504c;
@@ -59,9 +59,9 @@ button {
 }
 
 .rail-label {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0;
+  letter-spacing: 0.04em;
   text-decoration: none;
   text-transform: uppercase;
   writing-mode: vertical-rl;
@@ -71,26 +71,56 @@ button {
 .rail-progress-marker {
   background: var(--accent);
   height: 20px;
-  left: 3px;
+  left: 50%;
+  margin-left: -0.5px;
   pointer-events: none;
   position: absolute;
   top: 0;
-  width: 2px;
+  width: 1px;
   z-index: 1;
+}
+
+.rail-markers {
+  align-items: center;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 12px;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: auto;
+  bottom: clamp(112px, 13vh, 140px);
+}
+
+.rail-tick {
+  background: #aaa9a4;
+  height: 20px;
+  width: 1px;
 }
 
 .rail-counter {
   align-items: center;
   color: #777976;
   display: flex;
-  font-size: 11px;
+  font-size: 18px;
+  font-weight: 300;
   gap: 4px;
-  writing-mode: vertical-rl;
+  left: 50%;
+  position: absolute;
+  bottom: 54px;
+  transform: translateX(-50%) rotate(-90deg);
+  white-space: nowrap;
 }
 
 .rail-counter-divider {
   color: #b1b1ad;
-  font-size: 9px;
+  font-size: 14px;
+}
+
+.rail-counter-current {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .project-list {
@@ -361,7 +391,7 @@ button {
 
 @media (max-width: 600px) {
   :root {
-    --rail-width: 0px;
+    --rail-width: 44px;
   }
 
   html {
@@ -370,30 +400,24 @@ button {
 
   .side-rail {
     align-items: center;
-    flex-direction: row;
-    height: 58px;
+    flex-direction: column;
+    height: 100svh;
     justify-content: space-between;
-    padding: 0 18px;
-    width: 100%;
+    padding: 22px 0 18px;
+    width: var(--rail-width);
   }
 
   .rail-label {
-    font-size: 11px;
-    transform: none;
-    writing-mode: initial;
+    font-size: 9px;
   }
 
   .rail-counter {
-    flex-direction: row;
-    font-size: 11px;
-    writing-mode: initial;
+    bottom: 42px;
+    font-size: 14px;
   }
 
   .rail-progress-marker {
-    height: 2px;
-    left: 0;
-    top: calc(50% - 1px);
-    width: 20px;
+    height: 20px;
   }
 
   .project {
@@ -404,12 +428,12 @@ button {
   .project-stage {
     height: 100svh;
     min-height: 580px;
-    padding-top: 58px;
+    padding-top: 0;
   }
 
   .project-index {
     left: 18px;
-    top: 82px;
+    top: 24px;
   }
 
   .project-copy {

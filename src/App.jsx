@@ -76,8 +76,10 @@ export default function App() {
   const appRef = useRef(null);
   const projectRefs = useRef([]);
   const railProgressRef = useRef(null);
+  const railMarkersRef = useRef(null);
   const railLabelRef = useRef(null);
   const railCounterRef = useRef(null);
+  const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
   const [activeExpertise, setActiveExpertise] = useState(1);
   const [activeAward, setActiveAward] = useState(0);
@@ -131,31 +133,33 @@ export default function App() {
       updateRailMarker = () => {
         const marker = railProgressRef.current;
         const rail = marker?.parentElement;
-        const label = railLabelRef.current;
-        const counter = railCounterRef.current;
-        if (!marker || !rail || !label || !counter) return;
+        const markers = railMarkersRef.current;
+        const ticks = markers?.querySelectorAll(".rail-tick");
+        if (!marker || !rail || !markers || !ticks?.length) return;
 
-        const isHorizontal = getComputedStyle(rail).flexDirection === "row";
-        const railRect = rail.getBoundingClientRect();
-        const labelRect = label.getBoundingClientRect();
-        const counterRect = counter.getBoundingClientRect();
-        const start = isHorizontal
-          ? labelRect.right - railRect.left + 12
-          : labelRect.bottom - railRect.top + 20;
-        const end = isHorizontal
-          ? counterRect.left - railRect.left - marker.offsetWidth - 12
-          : counterRect.top - railRect.top - marker.offsetHeight - 20;
         const maxScroll =
           document.documentElement.scrollHeight - window.innerHeight;
-        const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-        const position = start + Math.max(0, end - start) * progress;
+        const progress =
+          maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+        const currentIndex = Math.min(
+          ticks.length - 1,
+          Math.floor(progress * ticks.length),
+        );
+        if (currentIndex !== activeProjectRef.current) {
+          activeProjectRef.current = currentIndex;
+          setActiveProject(currentIndex);
+        }
 
-        gsap.set(marker, {
-          x: isHorizontal ? position : 0,
-          y: isHorizontal
-            ? (rail.clientHeight - marker.offsetHeight) / 2
-            : position,
-        });
+        const railRect = rail.getBoundingClientRect();
+        const activeTickIndex = ticks.length - 1 - currentIndex;
+        const activeTickRect = ticks[activeTickIndex].getBoundingClientRect();
+        const position =
+          activeTickRect.top +
+          activeTickRect.height / 2 -
+          railRect.top -
+          marker.offsetHeight / 2;
+
+        gsap.set(marker, { y: position });
       };
 
       window.addEventListener("scroll", updateRailMarker, { passive: true });
@@ -163,7 +167,7 @@ export default function App() {
       ScrollTrigger.addEventListener("update", updateRailMarker);
       ScrollTrigger.addEventListener("refresh", updateRailMarker);
       railResizeObserver = new ResizeObserver(updateRailMarker);
-      railResizeObserver.observe(railProgressRef.current.parentElement);
+      railResizeObserver.observe(railMarkersRef.current);
       updateRailMarker();
 
       gsap.utils.toArray(".project").forEach((section) => {
@@ -179,18 +183,6 @@ export default function App() {
             start: "top top",
             end: "bottom bottom",
             scrub: 0.65,
-            onEnter: () =>
-              setActiveProject(
-                Number(
-                  section.querySelector(".project-index span")?.textContent,
-                ) - 1,
-              ),
-            onEnterBack: () =>
-              setActiveProject(
-                Number(
-                  section.querySelector(".project-index span")?.textContent,
-                ) - 1,
-              ),
           },
         });
 
@@ -255,14 +247,21 @@ export default function App() {
           ref={railProgressRef}
           aria-hidden="true"
         />
+        <div className="rail-markers" ref={railMarkersRef} aria-hidden="true">
+          {Array.from({ length: Number(projects[0].total) }, (_, index) => (
+            <span className="rail-tick" key={index} />
+          ))}
+        </div>
         <output
           className="rail-counter"
           ref={railCounterRef}
-          aria-label={`Project ${String(activeProject + 1).padStart(2, "0")} of 04`}
+          aria-label={`Project ${String(activeProject + 1).padStart(2, "0")} of ${projects[0].total}`}
         >
-          <span>{String(activeProject + 1).padStart(2, "0")}</span>
+          <span className="rail-counter-current">
+            {String(activeProject + 1).padStart(2, "0")}
+          </span>
           <span className="rail-counter-divider">-</span>
-          <span>04</span>
+          <span>{projects[0].total}</span>
         </output>
       </aside>
 
