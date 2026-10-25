@@ -82,7 +82,7 @@ export default function App() {
       top:
         showcase.getBoundingClientRect().top +
         window.scrollY +
-        (scrollDistance * index) / content.projects.length,
+        (scrollDistance * (index + 0.82)) / content.projects.length,
       behavior: "instant",
     });
     ScrollTrigger.update();
@@ -243,13 +243,13 @@ export default function App() {
               detail,
               { y: 24, opacity: 0 },
               { y: 0, opacity: 1, duration: 0.35, ease: "none" },
-              position + 0.2,
+              position + 0.38,
             )
             .fromTo(
               detailTitle,
               { y: 12, opacity: 0 },
               { y: 0, opacity: 1, duration: 0.2, ease: "none" },
-              position + 0.24,
+              position + 0.42,
             )
             .fromTo(
               projectFacts,
@@ -259,7 +259,7 @@ export default function App() {
                 duration: 0.25,
                 ease: "none",
               },
-              position + 0.3,
+              position + 0.48,
             )
             .to(
               factValues,
@@ -269,13 +269,13 @@ export default function App() {
                 stagger: 0.04,
                 ease: "none",
               },
-              position + 0.34,
+              position + 0.52,
             )
             .fromTo(
               detailDescription,
               { y: 10, opacity: 0 },
               { y: 0, opacity: 1, duration: 0.25, ease: "none" },
-              position + 0.42,
+              position + 0.6,
             );
 
           if (index < projectSlides.length - 1) {

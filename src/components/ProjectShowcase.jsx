@@ -21,7 +21,6 @@ function ProjectSlide({ labels, project }) {
       <div className="project-detail-shade" aria-hidden="true" />
       <div className="project-copy">
         <div className="project-intro">
-          <p className="project-number">{project.number}</p>
           <h1 className="project-title">{project.title}</h1>
           <div className="project-tags">
             <span>{project.status}</span>
