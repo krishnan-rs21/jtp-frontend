@@ -18,6 +18,7 @@ export default function App() {
   const railMarkersRef = useRef(null);
   const railLabelRef = useRef(null);
   const railCounterRef = useRef(null);
+  const projectScrollTriggerRef = useRef(null);
   const activeProjectRef = useRef(0);
   const [activeProject, setActiveProject] = useState(0);
   const [activeAward, setActiveAward] = useState(0);
@@ -82,8 +83,10 @@ export default function App() {
         showcase.getBoundingClientRect().top +
         window.scrollY +
         (scrollDistance * index) / content.projects.length,
-      behavior: "smooth",
+      behavior: "instant",
     });
+    ScrollTrigger.update();
+    projectScrollTriggerRef.current?.getTween()?.progress(1);
   };
 
   useLayoutEffect(() => {
@@ -213,6 +216,7 @@ export default function App() {
             updateRailMarker();
           },
         });
+        projectScrollTriggerRef.current = projectTimeline.scrollTrigger;
 
         projectSlides.forEach((slide, index) => {
           const intro = slide.querySelector(".project-intro");
@@ -399,6 +403,7 @@ export default function App() {
       ScrollTrigger.removeEventListener("refresh", updateRailMarker);
       railResizeObserver?.disconnect();
       sectionRevealTimelines.forEach((timeline) => timeline.kill());
+      projectScrollTriggerRef.current = null;
       context.revert();
     };
   }, []);
