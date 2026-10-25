@@ -10,10 +10,7 @@ export default function ExpertiseSection({ content }) {
     >
       <h2 id="expertise-title">{content.heading}</h2>
       <div className="expertise-content">
-        <div
-          className="expertise-category"
-          aria-label={content.categoryLabel}
-        >
+        <div className="expertise-category" aria-label={content.categoryLabel}>
           {content.categories.map((category) => (
             <Fragment key={category.number}>
               <span>{category.number}</span>
@@ -29,7 +26,6 @@ export default function ExpertiseSection({ content }) {
           <div className="expertise-copy">
             <p className="expertise-number">{content.number}</p>
             <h3>{content.title}</h3>
-            <span className="expertise-accent" aria-hidden="true" />
             <p>{content.description}</p>
           </div>
           <div className="expertise-image-wrap">

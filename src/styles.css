@@ -55,7 +55,9 @@ button {
   inset: 0;
   justify-content: center;
   position: fixed;
-  transition: opacity 700ms ease, visibility 700ms ease;
+  transition:
+    opacity 700ms ease,
+    visibility 700ms ease;
   visibility: visible;
   z-index: 100;
 }
@@ -1006,7 +1008,8 @@ button {
 }
 
 .award-pagination-current {
-  font-weight: 500;
+  font-weight: 400;
+  line-height: 0.9;
 }
 
 .award-pagination-separator {
@@ -1026,10 +1029,10 @@ button {
 }
 
 .award-pagination-track button {
-  background: #151515;
+  background: #686565;
   border: 0;
   flex: 1;
-  height: 4px;
+  height: 3px;
   padding: 0;
   transition: background-color 220ms ease;
 }
