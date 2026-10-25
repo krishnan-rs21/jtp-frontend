@@ -26,6 +26,7 @@ export default function ExpertiseSection({ content }) {
           <div className="expertise-copy">
             <p className="expertise-number">{content.number}</p>
             <h3>{content.title}</h3>
+            <span className="expertise-accent" aria-hidden="true" />
             <p>{content.description}</p>
           </div>
           <div className="expertise-image-wrap">

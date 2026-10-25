@@ -6,16 +6,14 @@ import ContactSection from "./components/ContactSection.jsx";
 import ExpertiseSection from "./components/ExpertiseSection.jsx";
 import IntroSection from "./components/IntroSection.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
-import ProjectSection from "./components/ProjectSection.jsx";
+import ProjectShowcase from "./components/ProjectShowcase.jsx";
 import SideRail from "./components/SideRail.jsx";
 import content from "./data/content.json";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const projects = content.projects;
 export default function App() {
   const appRef = useRef(null);
-  const projectRefs = useRef([]);
   const railProgressRef = useRef(null);
   const railMarkersRef = useRef(null);
   const railLabelRef = useRef(null);
@@ -74,17 +72,17 @@ export default function App() {
     };
   }, []);
 
-  const navigateTo = (index) => {
-    projectRefs.current[index]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+  const navigateToProject = (index) => {
+    const showcase = document.getElementById("project-1");
+    if (!showcase) return;
+    const scrollDistance = showcase.offsetHeight - window.innerHeight;
 
-  const navigateToSection = (sectionId) => {
-    document.getElementById(sectionId)?.scrollIntoView({
+    window.scrollTo({
+      top:
+        showcase.getBoundingClientRect().top +
+        window.scrollY +
+        (scrollDistance * index) / content.projects.length,
       behavior: "smooth",
-      block: "start",
     });
   };
 
@@ -102,9 +100,14 @@ export default function App() {
         ease: "power2.out",
       });
 
-      const firstProjectImage = appRef.current.querySelector(".project-image");
-      const firstProjectTitle = appRef.current.querySelector(".project-title");
+      const firstProjectImage = appRef.current.querySelector(
+        ".project-slide:first-child .project-image",
+      );
+      const firstProjectTitle = appRef.current.querySelector(
+        ".project-slide:first-child .project-title",
+      );
       const firstProjectTags = appRef.current.querySelectorAll(
+        ".project-slide:first-child .project-tags span",
         ".project-tags span",
       );
       gsap
@@ -139,17 +142,20 @@ export default function App() {
         const ticks = markers?.querySelectorAll(".rail-tick");
         if (!marker || !rail || !markers || !ticks?.length) return;
 
-        const destinations = content.projectNavigation.destinations;
-        const currentIndex = destinations.reduce((activeIndex, destination, index) => {
-          const section = document.getElementById(destination.target);
-          if (
-            section &&
-            section.getBoundingClientRect().top <= window.innerHeight * 0.25
-          ) {
-            return index;
-          }
-          return activeIndex;
-        }, 0);
+        const showcase = appRef.current.querySelector(".project");
+        const showcaseTop = showcase.getBoundingClientRect().top + window.scrollY;
+        const showcaseScrollDistance = showcase.offsetHeight - window.innerHeight;
+        const showcaseProgress =
+          showcaseScrollDistance > 0
+            ? Math.min(
+                1,
+                Math.max(0, (window.scrollY - showcaseTop) / showcaseScrollDistance),
+              )
+            : 0;
+        const currentIndex = Math.min(
+          content.projects.length - 1,
+          Math.floor(showcaseProgress * content.projects.length),
+        );
         if (currentIndex !== activeProjectRef.current) {
           activeProjectRef.current = currentIndex;
           setActiveProject(currentIndex);
@@ -189,74 +195,102 @@ export default function App() {
       railResizeObserver.observe(railMarkersRef.current.parentElement);
       updateRailMarker();
 
-      gsap.utils.toArray(".project").forEach((section) => {
-        const title = section.querySelector(".project-title");
-        const tags = section.querySelector(".project-tags");
-        const detail = section.querySelector(".project-detail");
-        const detailShade = section.querySelector(".project-detail-shade");
-        const detailTitle = detail.querySelector(".detail-title");
-        const projectFacts = detail.querySelector(".project-facts");
-        const factColumns = projectFacts.querySelectorAll("p");
-        const description = detail.querySelector(".detail-description");
+      const projectShowcase = appRef.current.querySelector(".project");
+      const projectSlides = [
+        ...appRef.current.querySelectorAll(".project-slide"),
+      ];
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        gsap.set(projectSlides.slice(1), { autoAlpha: 0 });
 
-        const reveal = gsap.timeline({
+        const projectTimeline = gsap.timeline({
           scrollTrigger: {
-            trigger: section,
+            trigger: projectShowcase,
             start: "top top",
             end: "bottom bottom",
-            scrub: 1.6,
+            scrub: 0.8,
+          },
+          onUpdate: () => {
+            updateRailMarker();
           },
         });
-        reveal
-          .fromTo(
-            detailShade,
-            { opacity: 0, immediateRender: false },
-            { opacity: 1, ease: "none" },
-            0.2,
-          )
-          .fromTo(
-            title,
-            { y: 0, opacity: 1, immediateRender: false },
-            { y: -24, opacity: 0, ease: "none" },
-            0.08,
-          )
-          .fromTo(
-            tags,
-            { y: 0, opacity: 1, immediateRender: false },
-            { y: -12, opacity: 0, ease: "none" },
-            0.2,
-          )
-          .fromTo(
-            detail,
-            { y: 44, opacity: 0 },
-            { y: 0, opacity: 1, ease: "none" },
-            0.26,
-          )
-          .fromTo(
-            detailTitle,
-            { y: 24, opacity: 0, immediateRender: false },
-            { y: 0, opacity: 1, ease: "none" },
-            0.34,
-          )
-          .fromTo(
-            factColumns,
-            { y: 20, opacity: 0, immediateRender: false },
-            { y: 0, opacity: 1, stagger: 0.08, ease: "none" },
-            0.43,
-          )
-          .fromTo(
-            projectFacts,
-            { clipPath: "inset(0 0 100% 0)", immediateRender: false },
-            { clipPath: "inset(0 0 0% 0)", ease: "none" },
-            0.43,
-          )
-          .fromTo(
-            description,
-            { y: 24, opacity: 0, immediateRender: false },
-            { y: 0, opacity: 1, ease: "none" },
-            0.56,
-          );
-      });
+
+        projectSlides.forEach((slide, index) => {
+          const intro = slide.querySelector(".project-intro");
+          const detail = slide.querySelector(".project-detail");
+          const detailShade = slide.querySelector(".project-detail-shade");
+          const detailTitle = slide.querySelector(".detail-title");
+          const projectFacts = slide.querySelector(".project-facts");
+          const factValues = projectFacts.querySelectorAll("p");
+          const detailDescription = slide.querySelector(".detail-description");
+          const position = index;
+
+          projectTimeline
+            .to(
+              detailShade,
+              { opacity: 0.78, duration: 0.3, ease: "none" },
+              position + 0.12,
+            )
+            .to(
+              intro,
+              { y: -18, opacity: 0, duration: 0.25, ease: "none" },
+              position + 0.12,
+            )
+            .fromTo(
+              detail,
+              { y: 24, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.35, ease: "none" },
+              position + 0.2,
+            )
+            .fromTo(
+              detailTitle,
+              { y: 12, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.2, ease: "none" },
+              position + 0.24,
+            )
+            .fromTo(
+              projectFacts,
+              { clipPath: "inset(0 0 100% 0)" },
+              {
+                clipPath: "inset(0 0 0% 0)",
+                duration: 0.25,
+                ease: "none",
+              },
+              position + 0.3,
+            )
+            .to(
+              factValues,
+              {
+                opacity: 1,
+                duration: 0.12,
+                stagger: 0.04,
+                ease: "none",
+              },
+              position + 0.34,
+            )
+            .fromTo(
+              detailDescription,
+              { y: 10, opacity: 0 },
+              { y: 0, opacity: 1, duration: 0.25, ease: "none" },
+              position + 0.42,
+            );
+
+          if (index < projectSlides.length - 1) {
+            projectTimeline
+              .to(
+                slide,
+                { autoAlpha: 0, duration: 0.12, ease: "none" },
+                position + 0.88,
+              )
+              .fromTo(
+                projectSlides[index + 1],
+                { autoAlpha: 0 },
+                { autoAlpha: 1, duration: 0.12, ease: "none" },
+                position + 0.88,
+              );
+          }
+        });
+        projectTimeline.to({}, { duration: 1 }, projectSlides.length - 1);
+      }
 
       const sectionAnimations = [
         {
@@ -380,35 +414,33 @@ export default function App() {
       )}
       <main className="portfolio" ref={appRef}>
         <SideRail
-        activeProject={activeProject}
-        ariaLabel={content.projectNavigation.ariaLabel}
-        counterRef={railCounterRef}
-        label={content.projectNavigation.label}
-        labelRef={railLabelRef}
-        markersRef={railMarkersRef}
-        navigateToSection={navigateToSection}
-        progressRef={railProgressRef}
-        destinations={content.projectNavigation.destinations}
-        destinationLabel={content.projectNavigation.destinationLabel}
-        counterLabel={content.projectNavigation.counterLabel}
+          activeProject={activeProject}
+          ariaLabel={content.projectNavigation.ariaLabel}
+          counterRef={railCounterRef}
+          label={content.projectNavigation.label}
+          labelRef={railLabelRef}
+          markersRef={railMarkersRef}
+          navigateToProject={navigateToProject}
+          progressRef={railProgressRef}
+          destinations={content.projects.map((project) => ({
+            label: project.title.replace("\n", " "),
+            target: project.number,
+          }))}
+          destinationLabel={content.projectNavigation.destinationLabel}
+          counterLabel={content.projectNavigation.counterLabel}
         />
 
-        <div className="project-list">
-          {projects.map((project, index) => (
-            <div
-              ref={(element) => {
-                projectRefs.current[index] = element;
-              }}
-              key={project.number}
-            >
-              <ProjectSection
-                project={project}
-                index={index}
-                labels={content.labels}
-              />
-            </div>
-          ))}
-        </div>
+        <ProjectShowcase
+          content={{
+            ...content.projectNavigation,
+            menu: {
+              ...content.projectMenu,
+              label: content.projectNavigation.ariaLabel,
+            },
+            projects: content.projects,
+            labels: content.labels,
+          }}
+        />
 
         <IntroSection content={content.intro} />
         <ExpertiseSection content={content.expertise} />

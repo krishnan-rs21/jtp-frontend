@@ -12,11 +12,12 @@
     "ariaLabel": "Featured project navigation",
     "counterLabel": "Project {current} of {total}",
     "destinationLabel": "Go to {label}",
-    "destinations": [
-      {
-        "label": "Featured project",
-        "target": "project-1"
-      },
+    "destinations": []
+  },
+  "projectMenu": {
+    "openLabel": "Open section navigation",
+    "closeLabel": "Close section navigation",
+    "items": [
       {
         "label": "Introduction",
         "target": "intro"
@@ -28,6 +29,10 @@
       {
         "label": "Awards",
         "target": "awards"
+      },
+      {
+        "label": "Contact",
+        "target": "contact"
       }
     ]
   },
@@ -42,7 +47,106 @@
       "description": "Perched on the captivating Al Marjan Island, the Hilton 5-star hotel masterfully balances serene beach front luxury with the thrilling allure of a vibrant casino. Nestled beside the existing Hampton by Hilton Al Marjan Island, this architectural marvel offers guests and residents an unparalleled experience that fuses relaxation and entertainment.",
       "image": "/images/hilton-marjan-hero.jpg",
       "alt": "Hilton Marjan Island resort at sunset",
-      "color": "warm"
+      "color": "warm",
+      "facts": [
+        {
+          "label": "Client",
+          "value": "MR Properties"
+        },
+        {
+          "label": "Type",
+          "value": "5 Star Hilton Hotel & Branded Residences"
+        }
+      ]
+    },
+    {
+      "number": "02",
+      "total": "04",
+      "title": "Treyam – Equinox Resort",
+      "status": "Design",
+      "client": "NEOM",
+      "type": "5 Star Luxury Resort (250 Keys)",
+      "description": "Located at the southern end of the Gulf of Aqaba, Treyam is a 250-room luxury resort. Its bridge-like design connects the lagoon’s shores and features a 450-metre rooftop infinity pool.",
+      "image": "https://jtpartners.com/wp-content/uploads/2024/03/cover-linkedin-1.jpg",
+      "alt": "Treyam Equinox Resort",
+      "color": "neutral",
+      "facts": [
+        {
+          "label": "Client",
+          "value": "NEOM"
+        },
+        {
+          "label": "Type",
+          "value": "5 Star Luxury Resort (250 Keys)"
+        },
+        {
+          "label": "Area",
+          "value": "113,147 m² BUA"
+        },
+        {
+          "label": "Scope",
+          "value": "Design"
+        }
+      ]
+    },
+    {
+      "number": "03",
+      "total": "04",
+      "title": "The Office Headquarters",
+      "status": "Concept",
+      "client": "Confidential",
+      "type": "Commercial",
+      "description": "A commercial headquarters in Abu Dhabi, situated between residential neighbourhoods and overlooking a river.",
+      "image": "https://jtpartners.com/wp-content/uploads/2025/01/MicrosoftTeams-image-10-scaled.jpg",
+      "alt": "The Office Headquarters",
+      "color": "neutral",
+      "facts": [
+        {
+          "label": "Client",
+          "value": "Confidential"
+        },
+        {
+          "label": "Type",
+          "value": "Commercial"
+        },
+        {
+          "label": "Area",
+          "value": "32,675 m² BUA"
+        },
+        {
+          "label": "Scope",
+          "value": "Design"
+        }
+      ]
+    },
+    {
+      "number": "04",
+      "total": "04",
+      "title": "Elanan",
+      "status": "Design",
+      "client": "NEOM",
+      "type": "5 Star Luxury Capella Resort (80 Keys)",
+      "image": "https://jtpartners.com/wp-content/uploads/2024/02/Elanan-Image-5-scaled-e1738652049476.jpg",
+      "alt": "Elanan Capella resort",
+      "color": "neutral",
+      "facts": [
+        {
+          "label": "Client",
+          "value": "NEOM"
+        },
+        {
+          "label": "Type",
+          "value": "5 Star Luxury Capella Resort (80 Keys)"
+        },
+        {
+          "label": "Operator",
+          "value": "Capella"
+        },
+        {
+          "label": "Area",
+          "value": "55,154 m² BUA"
+        }
+      ]
     }
   ],
   "intro": {
@@ -66,8 +170,8 @@
     "number": "02",
     "title": "Architecture",
     "description": "JT Partners is an international multidisciplinary consultancy with a unique portfolio of architecture, planning, engineering, project management, infrastructure and cost consultancy services.",
-    "image": "/images/hilton-marjan-architecture.webp",
-    "imageAlt": "Architecture project"
+    "image": "/images/expertise-resort.png?v=20261025",
+    "imageAlt": "Hilton Marjan Island resort overlooking the beach"
   },
   "awards": {
     "heading": ["Architectural", "Excellence"],

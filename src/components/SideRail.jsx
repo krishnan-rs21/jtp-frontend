@@ -9,7 +9,7 @@ export default function SideRail({
   label,
   labelRef,
   markersRef,
-  navigateToSection,
+  navigateToProject,
   progressRef,
   counterLabel,
 }) {
@@ -22,10 +22,6 @@ export default function SideRail({
         className="rail-label"
         ref={labelRef}
         href="#project-1"
-        onClick={(event) => {
-          event.preventDefault();
-          navigateTo(0);
-        }}
       >
         {label}
       </a>
@@ -35,7 +31,7 @@ export default function SideRail({
         aria-hidden="true"
       />
       <div className="rail-markers" ref={markersRef}>
-        {destinations.map((destination) => (
+        {destinations.map((destination, index) => (
           <button
             className="rail-tick"
             key={destination.target}
@@ -43,7 +39,7 @@ export default function SideRail({
             aria-label={formatContent(destinationLabel, {
               label: destination.label,
             })}
-            onClick={() => navigateToSection(destination.target)}
+            onClick={() => navigateToProject(index)}
           />
         ))}
       </div>

@@ -2,7 +2,11 @@ import { ArrowUpRight } from "lucide-react";
 
 export default function ContactSection({ content }) {
   return (
-    <footer className="contact-section" aria-labelledby="contact-title">
+    <footer
+      className="contact-section"
+      id="contact"
+      aria-labelledby="contact-title"
+    >
       <h2 id="contact-title">{content.heading}</h2>
       <div className="contact-topline">
         <div className="contact-details">
